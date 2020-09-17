@@ -1,0 +1,25 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "General Purpose JDE CNC/Tech Tool Client",
+  "main": "jdecnctool_client.js",
+  "scripts": {
+    "testHTML": "nodemon jdecnctool_client --testHTML",
+    "testAIS": "nodemon jdecnctool_client --testAIS",
+    "devFilter": "nodemon jdecnctool_client --filter RUNITNOW"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "commander": "^6.1.0",
+    "config": "^3.3.1",
+    "log4js": "^6.3.0",
+    "moment": "^2.28.0",
+    "puppeteer": "^5.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
