@@ -3,7 +3,8 @@ const axios = require("axios");
 const puppeteer = require('puppeteer');
 const { Command } = require('commander');
 const log4js = require("log4js");
-const AISConnector = require("./aisconnector");
+jdecnctool = require("jdecnctool-utils");
+const AISConnector = jdecnctool.AISConnector;
 const moment = require('moment');
 
 const program = new Command();

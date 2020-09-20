@@ -1,0 +1,75 @@
+<!--
+ Copyright (c) 2014, 2020, Oracle and/or its affiliates.
+ Licensed under The Universal Permissive License (UPL), Version 1.0
+ as shown at https://oss.oracle.com/licenses/upl/
+ -->
+<div class="oj-hybrid-padding">
+  <oj-accordion id="a1">
+    <oj-collapsible id="c10" expanded>
+      <h3 slot="header">Setup/Configuration</h3>
+      <p>Setup Configuration here For example: userid, password</p>
+      <oj-form-layout>
+        <oj-input-text id="text-input" value="{{jdecnctoolServerURL}}" label-hint="Enter CNC Tool Server URL"></oj-input-text>
+        <oj-input-text id="text-input" value="{{jdeServerManagerURL}}" label-hint="Enter JDE Server Manager URL"></oj-input-text>        
+        <oj-input-text id="text-input" value="{{htmlServerURL}}" label-hint="Enter HTML Server URL"></oj-input-text>
+        <oj-input-text id="text-input" value="{{aisServerURL}}" label-hint="Enter AIS Server URL"></oj-input-text>
+        <oj-input-text id="text-input" value="{{jdeLoginId}}" label-hint="Enter jde login user id"></oj-input-text>
+        <oj-input-password id="password" value="{{jdeLoginPassword}}" label-hint="Enter password">
+        </oj-input-password>
+        <oj-button id='vsButtonId' on-oj-action='[[validateSetup]]'>Validate Setup</oj-button>
+      </oj-form-layout>
+
+    </oj-collapsible>
+    <oj-collapsible id="c20">
+      <h3 slot="header">HTML Server Benchmark</h3>
+      <h7>Select HTML Servers</h7>
+      <oj-table id='table' aria-label='HTML Server Table' data='[[dataprovider]]'
+        selection-mode='{"row": "multiple", "column": "multiple"}' dnd='{"reorder": {"columns": "enabled"}}'
+        scroll-policy='loadMoreOnScroll' scroll-policy-options='{"fetchSize": 10}' columns='[{"headerText": "Department Id", 
+               "field": "DepartmentId",
+               "headerClassName": "oj-sm-only-hide",
+               "className": "oj-sm-only-hide",
+               "resizable": "enabled"},
+              {"headerText": "Department Name", 
+               "field": "DepartmentName",
+               "resizable": "enabled"},
+              {"headerText": "Location Id", 
+               "field": "LocationId",
+               "headerClassName": "oj-sm-only-hide",
+               "className": "oj-sm-only-hide",
+               "resizable": "enabled"},
+              {"headerText": "Manager Id", 
+               "field": "ManagerId",
+               "resizable": "enabled"}]' style='width: 100%; height: 200px;'>
+      </oj-table>
+      <hr>
+      <h7>Select JDE Applications</h7>
+      <oj-table id='table' aria-label='JDE Application Table' data='[[dataprovider]]'
+        selection-mode='{"row": "multiple", "column": "multiple"}' dnd='{"reorder": {"columns": "enabled"}}'
+        scroll-policy='loadMoreOnScroll' scroll-policy-options='{"fetchSize": 10}' columns='[{"headerText": "Department Id", 
+               "field": "DepartmentId",
+               "headerClassName": "oj-sm-only-hide",
+               "className": "oj-sm-only-hide",
+               "resizable": "enabled"},
+              {"headerText": "Department Name", 
+               "field": "DepartmentName",
+               "resizable": "enabled"},
+              {"headerText": "Location Id", 
+               "field": "LocationId",
+               "headerClassName": "oj-sm-only-hide",
+               "className": "oj-sm-only-hide",
+               "resizable": "enabled"},
+              {"headerText": "Manager Id", 
+               "field": "ManagerId",
+               "resizable": "enabled"}]' style='width: 100%; height: 200px;'>
+      </oj-table>
+      <hr>
+      <oj-button id='button1' on-oj-action='[[buttonClick]]'>Run Test</oj-button>
+
+    </oj-collapsible>
+    <oj-collapsible id="c30">
+      <h3 slot="header">AIS Server Benchmark</h3>
+      <p>Content 2.</p>
+    </oj-collapsible>
+  </oj-accordion>
+</div>

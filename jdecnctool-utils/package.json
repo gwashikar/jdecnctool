@@ -1,0 +1,16 @@
+{
+  "name": "jdecnctool-utils",
+  "version": "1.0.0",
+  "description": "jdecnctool utility api. e.g. simplify AIS, Server Manager sever REST service, functions to invoke puppeteer on HTML, Server Manager",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.20.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Girish Washikar",
+  "license": "GNU General Public License v3.0"
+}
