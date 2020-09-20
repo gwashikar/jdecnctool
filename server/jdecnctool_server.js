@@ -14,6 +14,21 @@ app.use(express.urlencoded({extended: false}));
 
 app.get('/jdecnctool/api/v1.0/ping', function (req, res) {
   res.send('<h1>hello world... I am alive !!!</h1>')
-})
+});
+
+app.get('/jdecnctool/api/v1.0/defaults', function (req, res) {
+  res.send({
+    defaultHtmlServer: config.defaultHtmlServer, 
+    defaultAisServer: config.defaultAisServer, 
+    defaultUser:config.defaultUser, 
+    defaultServerManager:config.defaultServerManager
+  });
+});
+
+app.get('/jdecnctool/api/v1.0/config', function (req, res) {
+  res.send(config);
+});
+
+
 
 app.listen(listenPort, () => console.log(`Server started on port ${listenPort}`));

@@ -1,4 +1,4 @@
-const config = require("config");
+const clientConfig = require("config");
 const axios = require("axios");
 const puppeteer = require('puppeteer');
 const { Command } = require('commander');
@@ -10,50 +10,84 @@ const program = new Command();
 let logger = log4js.getLogger();
 
 program
-    .option('-f, --filter <filterCriteria>', 'run for matching jde endpoints')
+    .requiredOption('-ts, --cncToolServerUrl <cncToolServerUrl>', 'JDE CNC Tool Server url')
     .option('-dl, --doorlock <doorLock>', 'door lock name')
     .option('-dk, --doorkey <doorKey>', 'door lock key')
     .option('-th  --testHTML', 'test HTML server')
-    .option('-ta  --testAIS', 'test AIS server');
+    .option('-ta  --testAIS', 'test AIS server')
+    .option('-f, --filter <filterCriteria>', 'run for matching jde endpoints');
+    
 program.parse(process.argv);
-// console.log(process.argv);
 
+axios.get(`${program.cncToolServerUrl}/jdecnctool/api/v1.0/config`)
+.then((result) => {
+    return result.data;
+})
+.then(serverConfig => {
+    /* Merge client and server clientConfig. Client config override server config */
+    if (!clientConfig.doorlock) {
+        clientConfig.doorlock = serverConfig.doorlock;
+    }
+    if (!clientConfig.doorkey) {
+        clientConfig.doorkey = serverConfig.doorkey;
+    }
 
-log4js.configure({
-    appenders: { jdecnctool: { type: "file", filename: config.loggerConfig.logFile } },
-    categories: { default: { appenders: [config.loggerConfig.logKey], level: config.loggerConfig.logLevel } }
+    if (!clientConfig.loggerConfig) {
+        clientConfig.loggerConfig = serverConfig.loggerConfig;
+    }
+
+    if (!clientConfig.puppeteerConfig) {
+        clientConfig.puppeteerConfig = serverConfig.puppeteerConfig;
+    }    
+
+    if (!clientConfig.jdeAISServer) {
+        clientConfig.jdeAISServer = serverConfig.jdeAISServer;
+    }  
+    
+    if (!clientConfig.jdeHTMLServer) {
+        clientConfig.jdeHTMLServer = serverConfig.jdeHTMLServer;
+    } 
+
+    log4js.configure({
+        appenders: { jdecnctool: { type: "file", filename: clientConfig.loggerConfig.logFile } },
+        categories: { default: { appenders: [clientConfig.loggerConfig.logKey], level: clientConfig.loggerConfig.logLevel } }
+    });
+    
+    logger = log4js.getLogger(clientConfig.loggerConfig.logKey);
+
+     if (!program.doorlock) {
+        program.doorlock = clientConfig.doorlock;
+    }
+    
+    if (!program.doorkey) {
+        program.doorkey = clientConfig.doorkey;
+    }    
+
+    logger.trace('NODE_ENV: ' + clientConfig.util.getEnv('NODE_ENV'));
+    logger.trace("filter: ", program.filter);
+    logger.trace("doorlock: ", program.doorlock);
+    // logger.trace("doorkey: ", program.doorkey);
+    logger.trace("CNC Tool Server: " + clientConfig.jdecnctoolServer);
+    logger.trace("Client Config JSON: " + JSON.stringify(clientConfig));
+    if (program.testHTML) {
+        performJdeHTMLServerTesting();
+    }
+    return serverConfig;    
+})
+.then(serverConfig => {
+    if (program.testAIS) {
+        performJdeAISServerTesting();
+    }    
+    return serverConfig;
 });
 
-if (!program.doorlock) {
-    program.doorlock = config.doorlock;
-}
-
-if (!program.doorkey) {
-    program.doorkey = config.doorkey;
-}
-
-logger = log4js.getLogger(config.loggerConfig.logKey);
-
-logger.trace('NODE_ENV: ' + config.util.getEnv('NODE_ENV'));
-logger.trace("filter: ", program.filter);
-logger.trace("doorlock: ", program.doorlock);
-logger.trace("doorkey: ", program.doorkey);
-logger.trace("Eone MPA Server: " + config.jdecnctoolServer);
-
-if (program.testHTML) {
-    performJdeHTMLServerTesting();
-}
-
-if (program.testAIS) {
-    performJdeAISServerTesting();
-}
 
 function performJdeAISServerTesting() {
-    config.jdeAISServer.jdeAISServerEndPointList.filter(jasInfo => {
+    clientConfig.jdeAISServer.jdeAISServerEndPointList.filter(jasInfo => {
         if (program.filter) {
             let flag = false;
             for ([key, val] of Object.entries(jasInfo)) {
-                // logger.trace(key, val);
+                logger.trace(key, val);
                 if (val.includes(program.filter)) {
                     flag = true;
                 }
@@ -64,7 +98,7 @@ function performJdeAISServerTesting() {
         }
     }).forEach(async (aisInfo) => {
         logger.trace(aisInfo);
-        config.jdeAISServer.jdeAISServiceList.forEach(async aisService => {
+        clientConfig.jdeAISServer.jdeAISServiceList.forEach(async aisService => {
             // "serviceType":"formservice",
             // "appName": "P574021",
             // "appFormName": "W574021B",
@@ -121,7 +155,7 @@ async function invokeJDEOrchestration(orchestration) {
 }
 
 function performJdeHTMLServerTesting() {
-    let jasInfoList = config.jdeHTMLServer.jdeHTMLServerEndPointList.filter(jasInfo => {
+    let jasInfoList = clientConfig.jdeHTMLServer.jdeHTMLServerEndPointList.filter(jasInfo => {
         if (program.filter) {
             let flag = false;
             for ([key, val] of Object.entries(jasInfo)) {
@@ -147,17 +181,17 @@ function performJdeHTMLServerTesting() {
     async function performTest(jasInfo) {
         logger.trace(`Running bechmark on - ${jasInfo.title} - ${jasInfo.jdeUrl}`);
         const browser = await puppeteer.launch({
-            headless: config.puppeteerConfig.headless,
-            slowMo: config.puppeteerConfig.slowMo,
-            dumpio: config.puppeteerConfig.dumpio,
-            devtools: config.puppeteerConfig.devtools
+            headless: clientConfig.puppeteerConfig.headless,
+            slowMo: clientConfig.puppeteerConfig.slowMo,
+            dumpio: clientConfig.puppeteerConfig.dumpio,
+            devtools: clientConfig.puppeteerConfig.devtools
         });
         const page = await browser.newPage();
-        page.setDefaultTimeout(config.pageDefaultTimeout);
+        page.setDefaultTimeout(clientConfig.pageDefaultTimeout);
         await page.setViewport({
-            width: config.puppeteerConfig.viewportWidth,
-            height: config.puppeteerConfig.viewportHeight,
-            deviceScaleFactor: config.puppeteerConfig.deviceScaleFactor
+            width: clientConfig.puppeteerConfig.viewportWidth,
+            height: clientConfig.puppeteerConfig.viewportHeight,
+            deviceScaleFactor: clientConfig.puppeteerConfig.deviceScaleFactor
         });
 
         // page.on('request', httpRequest => {
@@ -170,9 +204,9 @@ function performJdeHTMLServerTesting() {
 
         await loginToJDE(page, jasInfo.jdeUrl, program.doorlock, program.doorkey);
 
-        for (let i = 0; i < config.jdeHTMLServer.jdeAppList.length; i++) {
-            let jdeApp = config.jdeHTMLServer.jdeAppList[i].jdeApp;
-            let htmlSelector = config.jdeHTMLServer.jdeAppList[i].htmlSelector;
+        for (let i = 0; i < clientConfig.jdeHTMLServer.jdeAppList.length; i++) {
+            let jdeApp = clientConfig.jdeHTMLServer.jdeAppList[i].jdeApp;
+            let htmlSelector = clientConfig.jdeHTMLServer.jdeAppList[i].htmlSelector;
             // let startTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
             let startTime = new Date();
             await launchJDEAppOnFastPath(page, jdeApp, htmlSelector);
@@ -180,7 +214,7 @@ function performJdeHTMLServerTesting() {
             // let endTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
             let endTime = new Date();
             logger.debug(`JDE_URL=${jasInfo.jdeUrl},JDE_APP=${jdeApp},START_TIME=${startTime},END_TIME=${endTime},DURATION=${endTime - startTime}`);
-            await page.waitFor(config.puppeteerConfig.waitAfterLaunch);
+            await page.waitFor(clientConfig.puppeteerConfig.waitAfterLaunch);
         }
 
         await logoutFromJDE(page);
@@ -193,10 +227,10 @@ function performJdeHTMLServerTesting() {
         // logger.trace("Page Matrix Nodes = ", metrics.Nodes);
         // logger.trace("Page Matrix TaskDuration = ", metrics.TaskDuration);
 
-        // await page.waitFor(config.puppeteerConfig.waitBeforClose);
+        // await page.waitFor(clientConfig.puppeteerConfig.waitBeforClose);
 
         await browser.close();
-        let url = `${config.jdecnctoolServer}/jdecnctool/api/v1.0/ping`;
+        let url = `${clientConfig.jdecnctoolServer}/jdecnctool/api/v1.0/ping`;
         logger.debug("Sending collected data to : " + url);
         axios.get(url).then(response => {
             logger.debug(`Received on ${response.headers.date}} from  ${response.config.url} : ${response.data}`);
