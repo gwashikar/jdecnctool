@@ -212,3 +212,7 @@ dist
 server/config/*.json
 client/config/*.json
 
+# Ignore playground folder
+playground/
+my_notes.txt
+
