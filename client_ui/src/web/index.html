@@ -154,6 +154,13 @@
     </div>
   </div>
   <script>
+    // electron node integration conflicts with requirejs framework used 
+    // by oracle jet. text plugin for requirejs framework breaks and attempt
+    // to load module files using nodejs fs object.
+    // Removing process.versions objects bypass the logic to use fs object
+    // 
+    // This hack is added to get electron works correctly with oracle jet
+    //
     delete process.versions;
   </script>
   <script type="text/javascript" src="js/libs/require/require.js"></script>

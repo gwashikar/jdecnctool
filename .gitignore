@@ -211,6 +211,7 @@ dist
 # Ignore configurations
 server/config/*.json
 client/config/*.json
+client_ui/config/*.json
 
 # Ignore playground folder
 playground/

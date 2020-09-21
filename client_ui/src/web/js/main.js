@@ -9,6 +9,8 @@
 
 const os = require('os');
 const puppeteer = require('puppeteer');
+const electron = require('electron');
+const ipcRenderer = electron.ipcRenderer;
 /**
  * Example of Require.js boostrap javascript
  */

@@ -21,15 +21,20 @@ define(['accUtils', 'knockout', 'ojs/ojarraydataprovider', 'ojs/ojknockout',
       this.htmlServerURL = ko.observable();
       this.aisServerURL = ko.observable();
       this.jdeServerManagerURL = ko.observable();
-      this.jdecnctoolServerURL = ko.observable("http://localhost:8888");
-      /* Get defaults */
+      this.jdecnctoolServerURL = ko.observable("");
+      /* Get client config from main process */
+      this.clientConfig = ipcRenderer.sendSync('synchronous-message');
+      this.jdecnctoolServerURL(this.clientConfig.jdecnctoolServer);
+      this.jdeLoginId(this.clientConfig.doorlock);
+      this.jdeLoginPassword(this.clientConfig.doorkey);
+     
+            /* Get defaults */
       fetch(this.jdecnctoolServerURL() + "/jdecnctool/api/v1.0/defaults")
         .then(response => response.json())
         .then((result) => {
           self.jdeServerManagerURL(result.defaultServerManager);
           self.htmlServerURL(result.defaultHtmlServer);
           self.aisServerURL(result.defaultAisServer);
-          self.jdeLoginId(result.defaultUser);
         });
 
       var deptArray = [{ DepartmentId: 3, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300 },
