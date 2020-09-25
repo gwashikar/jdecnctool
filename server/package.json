@@ -4,13 +4,16 @@
   "description": "General Purpose JDE CNC/Tech Tool Server",
   "main": "jdecnctool_server.js",
   "scripts": {
-    "start": "node jdecnctool_server",
-    "dev": "nodemon jdecnctool_server"
+    "sandbox": "cross-env NODE_ENV=sandbox node jdecnctool_server",    
+    "dev": "cross-env NODE_ENV=dev nodemon jdecnctool_server",
+    "test": "cross-env NODE_ENV=test node jdecnctool_server",
+    "prod": "cross-env NODE_ENV=prod node jdecnctool_server"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cross-env": "^7.0.2",
     "config": "^3.3.1",
     "express": "^4.17.1"
   },

@@ -11,7 +11,7 @@
 define(['accUtils', 'knockout', 'ojs/ojarraydataprovider', 'ojs/ojknockout',
   'ojs/ojtable', 'ojs/ojaccordion', 'ojs/ojbutton', 'ojs/ojlabel',
   'ojs/ojinputtext', 'ojs/ojinputtext', 'ojs/ojlabel',
-  'ojs/ojformlayout', 'ojs/ojlabelvalue'],
+  'ojs/ojformlayout', 'ojs/ojlabelvalue', 'ojs/ojselectsingle'],
   function (accUtils, ko, ArrayDataProvider) {
     function DashboardViewModel() {
       let self = this;
@@ -27,8 +27,8 @@ define(['accUtils', 'knockout', 'ojs/ojarraydataprovider', 'ojs/ojknockout',
       this.jdecnctoolServerURL(this.clientConfig.jdecnctoolServer);
       this.jdeLoginId(this.clientConfig.doorlock);
       this.jdeLoginPassword(this.clientConfig.doorkey);
-     
-            /* Get defaults */
+
+      /* Get defaults */
       fetch(this.jdecnctoolServerURL() + "/jdecnctool/api/v1.0/defaults")
         .then(response => response.json())
         .then((result) => {
@@ -36,6 +36,25 @@ define(['accUtils', 'knockout', 'ojs/ojarraydataprovider', 'ojs/ojknockout',
           self.htmlServerURL(result.defaultHtmlServer);
           self.aisServerURL(result.defaultAisServer);
         });
+
+
+      // chart type values array and ArrayDataProvider observable
+      let jdecnctoolServerArray = [
+        { value: 'http://localhost:8888', label: 'localhost' },
+        { value: 'http://usdc1jdescript.trekbikes.net:8888', label: 'usdc1jdescript.trekbikes.net' }
+      ];
+
+      self.jdecnctoolServerList = new ArrayDataProvider(jdecnctoolServerArray, { keyAttributes: 'value' });
+
+      self.jdecnctoolServerURLChanged = ko.computed(function () {
+        fetch(self.jdecnctoolServerURL() + "/jdecnctool/api/v1.0/defaults")
+        .then(response => response.json())
+        .then((result) => {
+          self.jdeServerManagerURL(result.defaultServerManager);
+          self.htmlServerURL(result.defaultHtmlServer);
+          self.aisServerURL(result.defaultAisServer);
+        });
+      });
 
       var deptArray = [{ DepartmentId: 3, DepartmentName: 'ADFPM 1001 neverending', LocationId: 200, ManagerId: 300 },
       { DepartmentId: 5, DepartmentName: 'BB', LocationId: 200, ManagerId: 300 },

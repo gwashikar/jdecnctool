@@ -4,6 +4,10 @@
   "description": "General Purpose JDE CNC/Tech Tool Client",
   "main": "jdecnctool_client.js",
   "scripts": {
+    "sandbox": "cross-env NODE_ENV=sandbox node jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888",
+    "dev": "cross-env NODE_ENV=dev nodemon jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888",
+    "test": "cross-env NODE_ENV=test node jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888",
+    "prod": "cross-env NODE_ENV=prod node jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888",
     "testHTML_with_cncToolServerUrl_usdc1jdescript": "nodemon jdecnctool_client --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888 --testHTML",
     "testHTML_with_cncToolServerUrl_localhost": "nodemon jdecnctool_client --cncToolServerUrl http://localhost:8888 --testHTML",
     "testAIS_with_cncToolServerUrl_usdc1jdescript": "nodemon jdecnctool_client --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888 --testAIS",
@@ -16,6 +20,7 @@
     "axios": "^0.20.0",
     "commander": "^6.1.0",
     "config": "^3.3.1",
+    "cross-env": "^7.0.2",
     "jdecnctool-utils": "^1.0.2",
     "log4js": "^6.3.0",
     "moment": "^2.28.0",

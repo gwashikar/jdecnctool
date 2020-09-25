@@ -9,6 +9,12 @@
       <h3 slot="header">Setup/Configuration</h3>
       <p>Setup Configuration here For example: userid, password</p>
       <oj-form-layout style="max-width:30rem" >
+        <oj-label for="basicSelect">Select Chart:</oj-label>
+        <oj-select-single id="basicSelect"
+                          style="max-width:20em"
+                          data="[[jdecnctoolServerList]]"
+                          value="{{jdecnctoolServerURL}}">
+        </oj-select-single>
         <div>
           <oj-input-text id="text-input" value="{{jdecnctoolServerURL}}"
             label-hint="Enter CNC Tool Server URL"></oj-input-text>

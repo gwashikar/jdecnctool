@@ -14,7 +14,7 @@ ipcMain.on('synchronous-message', (event, arg) => {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    fullscreen : true,
+    fullscreen : false,
     webPreferences : {
       nodeIntegration: true
     }
