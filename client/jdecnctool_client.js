@@ -3,9 +3,11 @@ const axios = require("axios");
 const puppeteer = require('puppeteer');
 const { Command } = require('commander');
 const log4js = require("log4js");
-jdecnctool = require("jdecnctool-utils");
-const AISConnector = jdecnctool.AISConnector;
+const jdecnctool = require("jdecnctool-utils");
+const AISServerConnector = jdecnctool.AISServerConnector;
+const HTMLServerConnector = jdecnctool.HTMLServerConnector;
 const moment = require('moment');
+
 
 const program = new Command();
 let logger = log4js.getLogger();
@@ -25,29 +27,8 @@ axios.get(`${program.cncToolServerUrl}/jdecnctool/api/v1.0/config`)
     return result.data;
 })
 .then(serverConfig => {
-    /* Merge client and server clientConfig. Client config override server config */
-    if (!clientConfig.doorlock) {
-        clientConfig.doorlock = serverConfig.doorlock;
-    }
-    if (!clientConfig.doorkey) {
-        clientConfig.doorkey = serverConfig.doorkey;
-    }
 
-    if (!clientConfig.loggerConfig) {
-        clientConfig.loggerConfig = serverConfig.loggerConfig;
-    }
-
-    if (!clientConfig.puppeteerConfig) {
-        clientConfig.puppeteerConfig = serverConfig.puppeteerConfig;
-    }    
-
-    if (!clientConfig.jdeAISServer) {
-        clientConfig.jdeAISServer = serverConfig.jdeAISServer;
-    }  
-    
-    if (!clientConfig.jdeHTMLServer) {
-        clientConfig.jdeHTMLServer = serverConfig.jdeHTMLServer;
-    } 
+    jdecnctool.mergeConfiguration(clientConfig, serverConfig);
 
     log4js.configure({
         appenders: { jdecnctool: { type: "file", filename: clientConfig.loggerConfig.logFile } },
@@ -58,11 +39,15 @@ axios.get(`${program.cncToolServerUrl}/jdecnctool/api/v1.0/config`)
 
      if (!program.doorlock) {
         program.doorlock = clientConfig.doorlock;
+    } else {
+        clientConfig.doorlock = program.doorlock;        
     }
     
     if (!program.doorkey) {
         program.doorkey = clientConfig.doorkey;
-    }    
+    } else {
+        clientConfig.doorkey = program.doorkey;        
+    }   
 
     logger.trace('NODE_ENV: ' + clientConfig.util.getEnv('NODE_ENV'));
     logger.trace("filter: ", program.filter);
@@ -108,7 +93,7 @@ function performJdeAISServerTesting() {
             if (aisService.serviceType === "formservice") {
                 aisInfo.aisServerUserName =  program.doorlock;
                 aisInfo.aisServerPassword = program.doorkey;
-                prepareAISCallParameter(aisInfo);
+                AISServerConnector.prepareAISCallParameter(aisInfo);
                 let formData = await invokeJDEApp(aisService, { itemNumber: "578877", BusinessUnit: "         NCI" });
                 console.log(JSON.stringify(formData));
 
@@ -118,15 +103,13 @@ function performJdeAISServerTesting() {
         });
     });
 
-
-
 async function invokeJDEOrchestration(orchestration) {
     return new Promise(resolve => {
         let benchMark = {};
         benchMark[orchestration] = [];
         benchMark[orchestration].push(new Date());
         input = { "addressBookNumber": "16487" };
-        AISConnector.callAISOrchestration(orchestration, input, (data) => {
+        AISServerConnector.callAISOrchestration(orchestration, input, (data) => {
             resolve(data);
         });        
     })
@@ -148,7 +131,7 @@ async function invokeJDEOrchestration(orchestration) {
             };
 
             // setAISServiceVersionV2();
-            AISConnector.callAISService(input, AISConnector.FORM_SERVICE, function (formData) {
+            AISServerConnector.callAISService(input, AISServerConnector.FORM_SERVICE, function (formData) {
                 resolve(formData);
             });
         })
@@ -203,22 +186,22 @@ function performJdeHTMLServerTesting() {
         // logger.trace(`RESPONSE:${httpResponse.url()}`);
         // });
 
-        await loginToJDE(page, jasInfo.jdeUrl, program.doorlock, program.doorkey);
+        await HTMLServerConnector.loginToJDE(page, jasInfo.jdeUrl, program.doorlock, program.doorkey);
 
         for (let i = 0; i < clientConfig.jdeHTMLServer.jdeAppList.length; i++) {
             let jdeApp = clientConfig.jdeHTMLServer.jdeAppList[i].jdeApp;
             let htmlSelector = clientConfig.jdeHTMLServer.jdeAppList[i].htmlSelector;
             // let startTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
             let startTime = new Date();
-            await launchJDEAppOnFastPath(page, jdeApp, htmlSelector);
-            await closeJDEAppUsingCloseButton(page, jdeApp, htmlSelector);
+            await HTMLServerConnector.launchJDEAppOnFastPath(page, jdeApp, htmlSelector);
+            await HTMLServerConnector.closeJDEAppUsingCloseButton(page, jdeApp, htmlSelector);
             // let endTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
             let endTime = new Date();
             logger.debug(`JDE_URL=${jasInfo.jdeUrl},JDE_APP=${jdeApp},START_TIME=${startTime},END_TIME=${endTime},DURATION=${endTime - startTime}`);
-            await page.waitFor(clientConfig.puppeteerConfig.waitAfterLaunch);
+            await page.waitForTimeout(clientConfig.puppeteerConfig.waitAfterLaunch);
         }
 
-        await logoutFromJDE(page);
+        await HTMLServerConnector.logoutFromJDE(page);
 
         let metrics = await page.metrics();
 
@@ -237,64 +220,6 @@ function performJdeHTMLServerTesting() {
             logger.debug(`Received on ${response.headers.date}} from  ${response.config.url} : ${response.data}`);
         });
     }
-}
-
-async function loginToJDE(page, jdeUrl, doorlock, doorkey) {
-    await page.goto(jdeUrl, { waitUntil: 'networkidle0' });
-    await page.type('input[name=User]', doorlock);
-    await page.type('input[name=Password]', doorkey);
-    await page.click('input[type="submit"]');
-    await page.waitForSelector('#drop_mainmenu');
-    await page.waitFor(1000);
-}
-
-async function  logoutFromJDE(page) {
-    await page.click('#userSessionDropdownArrow');
-    await page.waitForSelector('#logoutIcon');
-    await page.click('#logoutIcon');
-    await page.waitFor(1000);
-}
-
-async function launchJDEAppOnFastPath(page, appName, htmlSelector) {
-    await page.waitForSelector('#drop_mainmenu');
-    await page.click('#drop_mainmenu');
-    await page.waitForSelector('#TE_FAST_PATH_BOX');
-    await page.type('#TE_FAST_PATH_BOX', appName);
-    await page.click('a#fastPathButton', { waitUntil: 'networkidle0' });
-    const elementHandle = await page.$(
-        'iframe[name="e1menuAppIframe"]',
-    );
-    const frame = await elementHandle.contentFrame();
-    await frame.waitForSelector(`form[name="${htmlSelector}"]`, { visible: true });
-    await frame.waitForSelector('img#hc_Close', { visible: true });
-}
-
-async function closeJDEAppUsingCloseButton(page, appName, htmlSelector) {
-    const elementHandle = await page.$(
-        'iframe[name="e1menuAppIframe"]',
-    );
-    const frame = await elementHandle.contentFrame();
-    // await frame.waitForSelector('form[name="P0006_W0006B"]', { visible: true });
-    await frame.waitForSelector(`form[name="${htmlSelector}"]`, { visible: true });
-    await frame.waitForSelector('img#hc_Close', { visible: true });
-    await frame.click('img#hc_Close', { waitUntil: 'networkidle0' });
-}
-
-
-function prepareAISCallParameter(aisInfo) {
-
-    AISConnector["AIS_HOST"] = aisInfo.aisServerHost;
-    AISConnector["AIS_PORT"] = aisInfo.aisServerPort;
-
-    AISConnector["USER_NAME"] = aisInfo.aisServerUserName;
-    AISConnector["PASSWORD"] = aisInfo.aisServerPassword;
-    AISConnector["DEVICE_NAME"] = aisInfo.aisServerDeviceName;
-    /*
-    this.JAS_SERVER = null;
-    this.ENVIRONMENT = null;
-    this.ROLE = null;
-    this.NODE_JS_SERVER = null;    
-    */
 }
 
 async function studyFrameTree(page, appName) {

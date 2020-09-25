@@ -8,15 +8,29 @@
     <oj-collapsible id="c10" expanded>
       <h3 slot="header">Setup/Configuration</h3>
       <p>Setup Configuration here For example: userid, password</p>
-      <oj-form-layout>
-        <oj-input-text id="text-input" value="{{jdecnctoolServerURL}}" label-hint="Enter CNC Tool Server URL"></oj-input-text>
-        <oj-input-text id="text-input" value="{{jdeServerManagerURL}}" label-hint="Enter JDE Server Manager URL"></oj-input-text>        
-        <oj-input-text id="text-input" value="{{htmlServerURL}}" label-hint="Enter HTML Server URL"></oj-input-text>
-        <oj-input-text id="text-input" value="{{aisServerURL}}" label-hint="Enter AIS Server URL"></oj-input-text>
-        <oj-input-text id="text-input" value="{{jdeLoginId}}" label-hint="Enter jde login user id"></oj-input-text>
-        <oj-input-password id="password" value="{{jdeLoginPassword}}" label-hint="Enter password">
-        </oj-input-password>
-        <oj-button id='vsButtonId' on-oj-action='[[validateSetup]]'>Validate Setup</oj-button>
+      <oj-form-layout style="max-width:30rem" >
+        <div>
+          <oj-input-text id="text-input" value="{{jdecnctoolServerURL}}"
+            label-hint="Enter CNC Tool Server URL"></oj-input-text>
+        </div>
+        <div>
+          <oj-input-text id="text-input" value="{{jdeServerManagerURL}}" label-hint="Enter JDE Server Manager URL">
+          </oj-input-text>
+        </div>
+        <div>
+          <oj-input-text id="text-input" value="{{htmlServerURL}}" label-hint="Enter HTML Server URL"></oj-input-text>
+        </div>
+        <div>
+          <oj-input-text id="text-input" value="{{aisServerURL}}" label-hint="Enter AIS Server URL"></oj-input-text>
+        </div>
+        <div>
+          <oj-input-text id="text-input" style="max-width:12rem" value="{{jdeLoginId}}" label-hint="Enter jde login user id"></oj-input-text>
+          <oj-input-password id="password" style="max-width:12rem" value="{{jdeLoginPassword}}" label-hint="Enter password">
+          </oj-input-password>
+        </div>
+        <div>
+          <oj-button id='vsButtonId' on-oj-action='[[validateSetup]]'>Validate Setup</oj-button>
+        </div>
       </oj-form-layout>
 
     </oj-collapsible>
