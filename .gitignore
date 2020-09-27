@@ -216,6 +216,7 @@ client_ui/config/*.json
 # Ignore playground folder
 playground/
 my_notes.txt
+my_json.json
 out/
 *.png
 

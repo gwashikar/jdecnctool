@@ -19,53 +19,53 @@ program
     .option('-th  --testHTML', 'test HTML server')
     .option('-ta  --testAIS', 'test AIS server')
     .option('-f, --filter <filterCriteria>', 'run for matching jde endpoints');
-    
+
 program.parse(process.argv);
 
 axios.get(`${program.cncToolServerUrl}/jdecnctool/api/v1.0/config`)
-.then((result) => {
-    return result.data;
-})
-.then(serverConfig => {
+    .then((result) => {
+        return result.data;
+    })
+    .then(serverConfig => {
 
-    jdecnctool.mergeConfiguration(clientConfig, serverConfig);
+        jdecnctool.mergeConfiguration(clientConfig, serverConfig);
 
-    log4js.configure({
-        appenders: { jdecnctool: { type: "file", filename: clientConfig.loggerConfig.logFile } },
-        categories: { default: { appenders: [clientConfig.loggerConfig.logKey], level: clientConfig.loggerConfig.logLevel } }
+        log4js.configure({
+            appenders: { jdecnctool: { type: "file", filename: clientConfig.loggerConfig.logFile } },
+            categories: { default: { appenders: [clientConfig.loggerConfig.logKey], level: clientConfig.loggerConfig.logLevel } }
+        });
+
+        logger = log4js.getLogger(clientConfig.loggerConfig.logKey);
+
+        if (!program.doorlock) {
+            program.doorlock = clientConfig.doorlock;
+        } else {
+            clientConfig.doorlock = program.doorlock;
+        }
+
+        if (!program.doorkey) {
+            program.doorkey = clientConfig.doorkey;
+        } else {
+            clientConfig.doorkey = program.doorkey;
+        }
+
+        logger.trace('NODE_ENV: ' + clientConfig.util.getEnv('NODE_ENV'));
+        logger.trace("filter: ", program.filter);
+        logger.trace("doorlock: ", program.doorlock);
+        // logger.trace("doorkey: ", program.doorkey);
+        logger.trace("CNC Tool Server: " + clientConfig.jdecnctoolServer);
+        logger.trace("Client Config JSON: " + JSON.stringify(clientConfig));
+        if (program.testHTML) {
+            performJdeHTMLServerTesting();
+        }
+        return serverConfig;
+    })
+    .then(serverConfig => {
+        if (program.testAIS) {
+            performJdeAISServerTesting();
+        }
+        return serverConfig;
     });
-    
-    logger = log4js.getLogger(clientConfig.loggerConfig.logKey);
-
-     if (!program.doorlock) {
-        program.doorlock = clientConfig.doorlock;
-    } else {
-        clientConfig.doorlock = program.doorlock;        
-    }
-    
-    if (!program.doorkey) {
-        program.doorkey = clientConfig.doorkey;
-    } else {
-        clientConfig.doorkey = program.doorkey;        
-    }   
-
-    logger.trace('NODE_ENV: ' + clientConfig.util.getEnv('NODE_ENV'));
-    logger.trace("filter: ", program.filter);
-    logger.trace("doorlock: ", program.doorlock);
-    // logger.trace("doorkey: ", program.doorkey);
-    logger.trace("CNC Tool Server: " + clientConfig.jdecnctoolServer);
-    logger.trace("Client Config JSON: " + JSON.stringify(clientConfig));
-    if (program.testHTML) {
-        performJdeHTMLServerTesting();
-    }
-    return serverConfig;    
-})
-.then(serverConfig => {
-    if (program.testAIS) {
-        performJdeAISServerTesting();
-    }    
-    return serverConfig;
-});
 
 
 function performJdeAISServerTesting() {
@@ -91,30 +91,31 @@ function performJdeAISServerTesting() {
             // "appVersion": "TEU001",
             // "testData":
             if (aisService.serviceType === "formservice") {
-                aisInfo.aisServerUserName =  program.doorlock;
+                aisInfo.aisServerUserName = program.doorlock;
                 aisInfo.aisServerPassword = program.doorkey;
                 AISServerConnector.prepareAISCallParameter(aisInfo);
-                let formData = await invokeJDEApp(aisService, { itemNumber: "578877", BusinessUnit: "         NCI" });
-                console.log(JSON.stringify(formData));
-
-                let orchData = await invokeJDEOrchestration("TestJavaCustomOrch");
-                console.log(JSON.stringify(orchData));
+                let resultData;
+                resultData = await AISServerConnector.invokeJDEApp(aisService);
+                if (resultData.response && resultData.response.status != 200) {
+                    console.log(JSON.stringify(resultData));
+                }
+            } else if(aisService.serviceType === "orchestrator") {
+                resultData = await AISServerConnector.invokeJDEOrchestration(aisService);
+                if (resultData.response && resultData.response.status != 200) {
+                    console.log(JSON.stringify(resultData));
+                }
             }
         });
     });
 
-async function invokeJDEOrchestration(orchestration) {
-    return new Promise(resolve => {
-        let benchMark = {};
-        benchMark[orchestration] = [];
-        benchMark[orchestration].push(new Date());
-        input = { "addressBookNumber": "16487" };
-        AISServerConnector.callAISOrchestration(orchestration, input, (data) => {
-            resolve(data);
-        });        
-    })
-}
-
+    async function invokeJDEOrchestration(orchestration) {
+        return new Promise(resolve => {
+            input = { "addressBookNumber": "16487" };
+            AISServerConnector.callAISOrchestration(orchestration, input, (data) => {
+                resolve(data);
+            });
+        });
+    }
 
     async function invokeJDEApp(setup, testRecord) {
         return new Promise(resolve => {
@@ -130,11 +131,10 @@ async function invokeJDEOrchestration(orchestration) {
                 ],
             };
 
-            // setAISServiceVersionV2();
             AISServerConnector.callAISService(input, AISServerConnector.FORM_SERVICE, function (formData) {
                 resolve(formData);
             });
-        })
+        });
     }
 }
 

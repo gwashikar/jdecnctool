@@ -439,9 +439,9 @@ const jdecnctool = new function () {
                     // console.log(this.loginResponse);
                     // console.log(JSON.stringify(this.loginResponse));
                     //console.log('Logged In-----------: ' + AISCall.loginResponse.userInfo.token);
-                    callback();
+                    callback(null, response);
                 }).catch(function (error) {
-                    console.log(error);
+                    callback(error);
                 });
             }
         };
@@ -512,9 +512,13 @@ const jdecnctool = new function () {
             if (this.loginResponse == null) {
                 if (!this.loginCalled) {
                     //login not called yet call it now then recall the method
-                    this.login(function () {
-
-                        self.aisServiceRequest(input, service, nodejs, callback, serviceversion);
+                    this.login(function (error, response) {
+                        if (error == null) {
+                            self.aisServiceRequest(input, service, nodejs, callback, serviceversion);
+                        } else {
+                            callback(error, response);
+                        }
+                        
                     });
                 }
                 else {
@@ -609,6 +613,24 @@ const jdecnctool = new function () {
                 /* do nothing */
             }
         };
+
+        this.invokeJDEOrchestration = async function (aisService) {
+            let self = this;
+            return new Promise(resolve => {
+                self.callAISOrchestration(aisService.orchestrationName, aisService.input, (data) => {
+                    resolve(data);
+                });
+            });
+        }
+
+        this.invokeJDEApp = async function(aisService) {
+            let self = this;
+            return new Promise(resolve => {
+                self.callAISService(aisService.input, self.FORM_SERVICE, function (formData) {
+                    resolve(formData);
+                });
+            });
+        }        
     }
 }
 
