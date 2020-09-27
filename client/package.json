@@ -6,16 +6,12 @@
   "scripts": {
     "sandbox": "cross-env NODE_ENV=sandbox node jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8010",
     "sandboxHtml": "cross-env NODE_ENV=sandbox node jdecnctool_client --testHTML --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8010",
-    "sandboxAis": "cross-env NODE_ENV=sandbox node jdecnctool_client --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8010",    
+    "sandboxAis": "cross-env NODE_ENV=sandbox node jdecnctool_client --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8010",
     "dev": "cross-env NODE_ENV=dev nodemon jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8020",
     "devHtml": "cross-env NODE_ENV=dev node jdecnctool_client --testHTML --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8020",
-    "devAis": "cross-env NODE_ENV=dev node jdecnctool_client --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8020",    
-    "test": "cross-env NODE_ENV=test node jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888",
-    "prod": "cross-env NODE_ENV=prod node jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888",
-    "testHTML_with_cncToolServerUrl_usdc1jdescript": "nodemon jdecnctool_client --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888 --testHTML",
-    "testHTML_with_cncToolServerUrl_localhost": "nodemon jdecnctool_client --cncToolServerUrl http://localhost:8888 --testHTML",
-    "testAIS_with_cncToolServerUrl_usdc1jdescript": "nodemon jdecnctool_client --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888 --testAIS",
-    "testAIS_with_cncToolServerUrl_localhost": "nodemon jdecnctool_client --cncToolServerUrl http://localhost:8888 --testAIS"
+    "devAis": "cross-env NODE_ENV=dev node jdecnctool_client --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8020",
+    "test": "cross-env NODE_ENV=test node jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8030",
+    "prod": "cross-env NODE_ENV=prod node jdecnctool_client --testHTML --testAIS --cncToolServerUrl http://usdc1jdescript.trekbikes.net:8888"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +21,7 @@
     "commander": "^6.1.0",
     "config": "^3.3.1",
     "cross-env": "^7.0.2",
-    "jdecnctool-utils": "^1.0.2",
+    "jdecnctool-utils": "^1.0.3",
     "log4js": "^6.3.0",
     "moment": "^2.28.0",
     "puppeteer": "^5.3.0"

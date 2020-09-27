@@ -1,6 +1,46 @@
 const axios = require('axios');
+const NetworkSpeed = require('network-speed');  // ES5
+const testNetworkSpeed = new NetworkSpeed();
+const url = require("url");
 
 const jdecnctool = new function () {
+
+    this.getNetworkDownloadSpeed = async function (dataSizeInBytes = 102400) {
+        const baseUrl = `${this.config.jdecnctoolServer}/jdecnctool/api/v1.0/downloadspeedtest/?fileSizeInBytes=${dataSizeInBytes}`;
+        const startTime = new Date().getTime();
+        const speed = await testNetworkSpeed.checkDownloadSpeed(baseUrl, dataSizeInBytes);
+        const endTime = new Date().getTime();
+        let result = {};
+        result["durationms"] = endTime - startTime;
+        result["dataSizeInBytes"] = dataSizeInBytes;
+        result["action"] = "download";
+        return result;
+    }
+
+    this.getNetworkUploadSpeed = async function(dataSizeInBytes = 102400) {
+        let myUrl = url.parse(this.config.jdecnctoolServer);
+        const options = {
+            hostname: myUrl.hostname,
+            port: myUrl.port,
+            path: '/jdecnctool/api/v1.0/uploadspeedtest',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+        const startTime = new Date().getTime();
+        const speed = await testNetworkSpeed.checkUploadSpeed(options, dataSizeInBytes);
+        const endTime = new Date().getTime();
+        let result = {};
+        result["durationms"] = endTime - startTime;
+        result["dataSizeInBytes"] = dataSizeInBytes;
+        result["action"] = "upload";
+        return result;
+    }
+
+    this.setConfig = function (config) {
+        this.config = config;
+    }
 
     this.mergeConfiguration = function (clientConfig, serverConfig) {
         /* Merge client and server clientConfig. Client config override server config */
@@ -518,7 +558,7 @@ const jdecnctool = new function () {
                         } else {
                             callback(error, response);
                         }
-                        
+
                     });
                 }
                 else {
@@ -623,14 +663,14 @@ const jdecnctool = new function () {
             });
         }
 
-        this.invokeJDEApp = async function(aisService) {
+        this.invokeJDEApp = async function (aisService) {
             let self = this;
             return new Promise(resolve => {
                 self.callAISService(aisService.input, self.FORM_SERVICE, function (formData) {
                     resolve(formData);
                 });
             });
-        }        
+        }
     }
 }
 
