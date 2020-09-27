@@ -21,7 +21,7 @@
     "commander": "^6.1.0",
     "config": "^3.3.1",
     "cross-env": "^7.0.2",
-    "jdecnctool-utils": "^1.0.3",
+    "jdecnctool-utils": "^1.0.5",
     "log4js": "^6.3.0",
     "moment": "^2.28.0",
     "puppeteer": "^5.3.0"
