@@ -22,7 +22,11 @@ program
 
 program.parse(process.argv);
 
-axios.get(`${program.cncToolServerUrl}/jdecnctool/api/v1.0/config`)
+if (program.cncToolServerUrl) {
+    clientConfig.jdecnctoolServer = program.cncToolServerUrl;
+}
+
+axios.get(`${clientConfig.jdecnctoolServer}/jdecnctool/api/v1.0/config`)
     .then((result) => {
         return result.data;
     })
