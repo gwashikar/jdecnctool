@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain} = require('electron');
 const clientConfig = require("config");
 const path = require('path');
+const jdecnctool = require("jdecnctool-utils");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -15,6 +16,7 @@ const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     fullscreen : false,
+    width: 1200, height: 1024,
     webPreferences : {
       nodeIntegration: true
     }
@@ -26,7 +28,7 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, 'web/index.html'));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -51,8 +53,13 @@ app.on('activate', () => {
   }
 });
 
+async function loadandMergeConfig() {
+  let serverConfig = await jdecnctool.loadJdecnctoolServerConfig(clientConfig.jdecnctoolServer);
+  jdecnctool.mergeConfiguration(clientConfig, serverConfig);
+  jdecnctool.setConfig(clientConfig);
+}
 
-
+loadandMergeConfig();
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.

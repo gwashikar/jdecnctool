@@ -48,7 +48,7 @@
     "config": "^3.3.1",
     "cross-env": "^7.0.2",
     "electron-squirrel-startup": "^1.0.0",
-    "jdecnctool-utils": "^1.0.5",
+    "jdecnctool-utils": "^1.0.6",
     "puppeteer": "^5.3.0"
   },
   "devDependencies": {

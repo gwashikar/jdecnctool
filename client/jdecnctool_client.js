@@ -8,7 +8,6 @@ const AISServerConnector = jdecnctool.AISServerConnector;
 const HTMLServerConnector = jdecnctool.HTMLServerConnector;
 const moment = require('moment');
 
-
 const program = new Command();
 let logger = log4js.getLogger();
 

@@ -27,21 +27,13 @@ define(['accUtils', 'knockout', 'ojs/ojarraydataprovider', 'ojs/ojknockout',
       this.jdecnctoolServerURL(this.clientConfig.jdecnctoolServer);
       this.jdeLoginId(this.clientConfig.doorlock);
       this.jdeLoginPassword(this.clientConfig.doorkey);
+      this.jdeServerManagerURL(this.clientConfig.defaultServerManager);
+      this.htmlServerURL(this.clientConfig.defaultHtmlServer);
+      this.aisServerURL(this.clientConfig.defaultAisServer);
 
-      /* Get defaults */
-      fetch(this.jdecnctoolServerURL() + "/jdecnctool/api/v1.0/defaults")
-        .then(response => response.json())
-        .then((result) => {
-          self.jdeServerManagerURL(result.defaultServerManager);
-          self.htmlServerURL(result.defaultHtmlServer);
-          self.aisServerURL(result.defaultAisServer);
-        });
-
-
-      // chart type values array and ArrayDataProvider observable
+     // chart type values array and ArrayDataProvider observable
       let jdecnctoolServerArray = [
-        { value: 'http://localhost:8888', label: 'localhost' },
-        { value: 'http://usdc1jdescript.trekbikes.net:8888', label: 'usdc1jdescript.trekbikes.net' }
+        { value: this.clientConfig.jdecnctoolServer, label: new URL(this.clientConfig.jdecnctoolServer).hostname }
       ];
 
       self.jdecnctoolServerList = new ArrayDataProvider(jdecnctoolServerArray, { keyAttributes: 'value' });

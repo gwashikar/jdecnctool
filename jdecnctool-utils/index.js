@@ -17,7 +17,7 @@ const jdecnctool = new function () {
         return result;
     }
 
-    this.getNetworkUploadSpeed = async function(dataSizeInBytes = 102400) {
+    this.getNetworkUploadSpeed = async function (dataSizeInBytes = 102400) {
         let myUrl = url.parse(this.config.jdecnctoolServer);
         const options = {
             hostname: myUrl.hostname,
@@ -38,9 +38,20 @@ const jdecnctool = new function () {
         return result;
     }
 
+    this.loadJdecnctoolServerConfig = async function (jdecnctoolServerUrl) {
+        try {
+            return axios.get(`${jdecnctoolServerUrl}/jdecnctool/api/v1.0/config`)
+                .then((result) => {
+                    return result.data;
+                })
+        } catch (e) {
+        }
+    }
+
     this.setConfig = function (config) {
         this.config = config;
     }
+
 
     this.mergeConfiguration = function (clientConfig, serverConfig) {
         /* Merge client and server clientConfig. Client config override server config */

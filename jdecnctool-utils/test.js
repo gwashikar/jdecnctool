@@ -3,8 +3,30 @@ const jdecnctool = require('./index');
 let expect = chai.expect;
 
 let config = {
-    "jdecnctoolServer": "http://localhost:8010",
+    "jdecnctoolServer": "http://usdc1jdescript.trekbikes.net:8010",
 }
+
+
+describe("jdecnctool.loadJdecnctoolServerConfig", function () {
+    this.timeout(50000);
+
+    it("Test loadJdecnctoolServerConfig", done => {
+        async function loadJdecnctoolServerConfig() {
+            let option = {
+                "jdecnctoolServer": "http://usdc1jdescript.trekbikes.net:8010"
+            };            
+            try {
+                const config = await jdecnctool.loadJdecnctoolServerConfig(option.jdecnctoolServer);
+                expect(config).to.include.all.keys('defaultAisServer', 'defaultServerManager', 'defaultHtmlServer','loggerConfig','puppeteerConfig');
+                done();
+            } catch (err) {
+                console.error(err)
+                done(err)
+            }
+        }
+        loadJdecnctoolServerConfig();
+    });
+});
 
 describe("jdecnctool.getNetworkDownloadSpeed", function () {
     this.timeout(50000);
