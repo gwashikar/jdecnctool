@@ -6,6 +6,9 @@
   "scripts": {
     "sandbox": "cross-env NODE_ENV=sandbox node jdecnctool_server",
     "dev": "cross-env NODE_ENV=dev nodemon jdecnctool_server",
+    "testam": "cross-env NODE_ENV=testam nodemon jdecnctool_server",
+    "testap": "cross-env NODE_ENV=testap nodemon jdecnctool_server",        
+    "testea": "cross-env NODE_ENV=testea nodemon jdecnctool_server",    
     "test": "cross-env NODE_ENV=test node jdecnctool_server",
     "prod": "cross-env NODE_ENV=prod node jdecnctool_server"
   },

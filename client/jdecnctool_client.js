@@ -3,6 +3,7 @@ const axios = require("axios");
 const puppeteer = require('puppeteer');
 const { Command } = require('commander');
 const log4js = require("log4js");
+// const jdecnctool = require("../jdecnctool-utils/index");
 const jdecnctool = require("jdecnctool-utils");
 const AISServerConnector = jdecnctool.AISServerConnector;
 const HTMLServerConnector = jdecnctool.HTMLServerConnector;
@@ -194,14 +195,21 @@ function performJdeHTMLServerTesting() {
         for (let i = 0; i < clientConfig.jdeHTMLServer.jdeAppList.length; i++) {
             let jdeApp = clientConfig.jdeHTMLServer.jdeAppList[i].jdeApp;
             let htmlSelector = clientConfig.jdeHTMLServer.jdeAppList[i].htmlSelector;
-            // let startTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
-            let startTime = new Date();
-            await HTMLServerConnector.launchJDEAppOnFastPath(page, jdeApp, htmlSelector);
-            await HTMLServerConnector.closeJDEAppUsingCloseButton(page, jdeApp, htmlSelector);
-            // let endTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
-            let endTime = new Date();
-            logger.debug(`JDE_URL=${jasInfo.jdeUrl},JDE_APP=${jdeApp},START_TIME=${startTime},END_TIME=${endTime},DURATION=${endTime - startTime}`);
-            await page.waitForTimeout(clientConfig.puppeteerConfig.waitAfterLaunch);
+            let appTitle = clientConfig.jdeHTMLServer.jdeAppList[i].appTitle;
+            let formTitle = clientConfig.jdeHTMLServer.jdeAppList[i].formTitle;
+            try {
+                // let startTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
+                console.log(`Running ... ${htmlSelector} : ${appTitle}: ${formTitle}`);
+                let startTime = new Date();
+                await HTMLServerConnector.launchJDEAppOnFastPath(page, jdeApp, htmlSelector);
+                await HTMLServerConnector.closeJDEAppUsingCloseButton(page, jdeApp, htmlSelector);
+                // let endTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
+                let endTime = new Date();
+                logger.debug(`JDE_URL=${jasInfo.jdeUrl},JDE_APP=${jdeApp},START_TIME=${startTime},END_TIME=${endTime},DURATION=${endTime - startTime}`);
+                await page.waitForTimeout(clientConfig.puppeteerConfig.waitAfterLaunch);    
+            } catch(e) {
+                console.log("Exception while running ...." + jdeApp);
+            }
         }
 
         await HTMLServerConnector.logoutFromJDE(page);

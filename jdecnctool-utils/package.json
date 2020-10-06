@@ -1,11 +1,13 @@
 {
   "name": "jdecnctool-utils",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "jdecnctool utility api. e.g. simplify AIS, Server Manager sever REST service, functions to invoke puppeteer on HTML, Server Manager",
   "main": "index.js",
   "dependencies": {
     "axios": "^0.20.0",
-    "network-speed": "^2.0.7"
+    "ip": "^1.1.5",
+    "network-speed": "^2.0.7",
+    "ping": "^0.2.3"
   },
   "devDependencies": {
     "chai": "^4.2.0",

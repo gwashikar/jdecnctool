@@ -2,6 +2,9 @@ const axios = require('axios');
 const NetworkSpeed = require('network-speed');  // ES5
 const testNetworkSpeed = new NetworkSpeed();
 const url = require("url");
+const ping = require('ping');
+const ip = require('ip');
+const os = require("os");
 
 const jdecnctool = new function () {
 
@@ -16,6 +19,7 @@ const jdecnctool = new function () {
         result["action"] = "download";
         return result;
     }
+
 
     this.getNetworkUploadSpeed = async function (dataSizeInBytes = 102400) {
         let myUrl = url.parse(this.config.jdecnctoolServer);
@@ -104,19 +108,33 @@ const jdecnctool = new function () {
                 'iframe[name="e1menuAppIframe"]',
             );
             const frame = await elementHandle.contentFrame();
-            await frame.waitForSelector(`form[name="${htmlSelector}"]`, { visible: true });
-            await frame.waitForSelector('img#hc_Close', { visible: true });
+            // await frame.waitForSelector(`form[name="${htmlSelector}"]`, { visible: true });
+            await frame.waitForSelector(`form[name="${htmlSelector}"]`, {timeout : 180000});
         }
 
         this.closeJDEAppUsingCloseButton = async function (page, appName, htmlSelector) {
-            const elementHandle = await page.$(
-                'iframe[name="e1menuAppIframe"]',
-            );
-            const frame = await elementHandle.contentFrame();
-            // await frame.waitForSelector('form[name="P0006_W0006B"]', { visible: true });
-            await frame.waitForSelector(`form[name="${htmlSelector}"]`, { visible: true });
-            await frame.waitForSelector('img#hc_Close', { visible: true });
-            await frame.click('img#hc_Close', { waitUntil: 'networkidle0' });
+            try {
+                const elementHandle = await page.$(
+                    'iframe[name="e1menuAppIframe"]',
+                );
+                const frame = await elementHandle.contentFrame();
+                // await frame.waitForSelector('form[name="P0006_W0006B"]', { visible: true });
+                await frame.waitForSelector(`form[name="${htmlSelector}"]`, { visible: true });
+                try {
+                    await frame.click('img#hc_Close', { waitUntil: 'networkidle0' });
+                } catch(e) {
+                }
+                try {
+                    await frame.click('img#hc_Cancel', { waitUntil: 'networkidle0' });    
+                } catch(e) {
+                }
+                try {
+                    await frame.click('img#jdeclose_ena', { waitUntil: 'networkidle0' });    
+                } catch(e) {
+                }
+            } catch(e) {
+                console.log("Exception ignored!!");
+            }
         }
 
 
