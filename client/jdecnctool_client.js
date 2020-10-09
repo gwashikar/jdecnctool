@@ -199,8 +199,8 @@ function performJdeHTMLServerTesting() {
             let formTitle = clientConfig.jdeHTMLServer.jdeAppList[i].formTitle;
             try {
                 // let startTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
-                console.log(`Running ... ${htmlSelector} : ${appTitle}: ${formTitle}`);
                 let startTime = new Date();
+                console.log(`${startTime} Running ... ${htmlSelector} : ${appTitle}: ${formTitle}`);
                 await HTMLServerConnector.launchJDEAppOnFastPath(page, jdeApp, htmlSelector);
                 await HTMLServerConnector.closeJDEAppUsingCloseButton(page, jdeApp, htmlSelector);
                 // let endTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss.SSS a");
